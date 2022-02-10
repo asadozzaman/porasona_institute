@@ -77,3 +77,48 @@ def edit_staff_save(request):
         except:
             messages.error(request,"Failed to Edit Staff")
             return HttpResponseRedirect(reverse("myapp_url:edit_staff",kwargs={"staff_id":staff_id}))
+
+
+def add_course(request):
+    return render(request,"admin/hod_template/course/add_course_template.html")
+
+def add_course_save(request):
+    if request.method!="POST":
+        return HttpResponse("Method Not Allowed")
+    else:
+        course=request.POST.get("course")
+        try:
+            course_model=Courses(course_name=course)
+            course_model.save()
+            messages.success(request,"Successfully Added Course")
+            return HttpResponseRedirect(reverse("myapp_url:add_course"))
+        except:
+            messages.error(request,"Failed To Add Course")
+            return HttpResponseRedirect(reverse("myapp_url:add_course"))
+
+def manage_course(request):
+    courses=Courses.objects.all()
+    return render(request,"admin/hod_template/course/manage_course_template.html",{"courses":courses})
+
+
+def edit_course(request,course_id):
+    course=Courses.objects.get(id=course_id)
+    return render(request,"admin/hod_template/course/edit_course_template.html",{"course":course,"id":course_id})
+
+def edit_course_save(request):
+    if request.method!="POST":
+        return HttpResponse("<h2>Method Not Allowed</h2>")
+    else:
+        course_id=request.POST.get("course_id")
+        course_name=request.POST.get("course")
+
+        try:
+            course=Courses.objects.get(id=course_id)
+            print(Courses.course_name)
+            course.course_name=course_name
+            course.save()
+            messages.success(request,"Successfully Edited Course")
+            return HttpResponseRedirect(reverse("myapp_url:edit_course",kwargs={"course_id":course_id}))
+        except:
+            messages.error(request,"Failed to Edit Course")
+            return HttpResponseRedirect(reverse("myapp_url:edit_course",kwargs={"course_id":course_id}))
