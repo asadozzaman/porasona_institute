@@ -49,6 +49,9 @@ urlpatterns = [
 
     path('add_student', HodViews.add_student,name="add_student"),
     path('add_student_save', HodViews.add_student_save,name="add_student_save"),
+    path('manage_student', HodViews.manage_student,name="manage_student"),
+    path('edit_student/<str:student_id>', HodViews.edit_student,name="edit_student"),
+    path('edit_student_save', HodViews.edit_student_save,name="edit_student_save"),
 
 
 

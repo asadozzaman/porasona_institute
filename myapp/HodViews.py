@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from myapp.models import CustomUser, Staffs, Courses, Subjects, Students,SessionYearModel
-from myapp.forms import AddStudentForm
+from myapp.forms import AddStudentForm,EditStudentForm
 
 
 def admin_home(request):
@@ -189,10 +189,85 @@ def add_student_save(request):
                 user.students.profile_pic=profile_pic_url
                 user.save()
                 messages.success(request,"Successfully Added Student")
-                return HttpResponseRedirect(reverse("add_student"))
+                return HttpResponseRedirect(reverse("myapp_url:add_student"))
             except:
                 messages.error(request,"Failed to Add Student")
-                return HttpResponseRedirect(reverse("add_student"))
+                return HttpResponseRedirect(reverse("myapp_url:add_student"))
         else:
             form=AddStudentForm(request.POST)
-            return render(request, "hod_template/add_student_template.html", {"form": form})
+            return render(request, "admin/hod_template/student/add_student_template.html", {"form": form})
+
+def manage_student(request):
+    students=Students.objects.all()
+    return render(request,"admin/hod_template/student/manage_student_template.html",{"students":students})
+
+def edit_student(request,student_id):
+    request.session['student_id']=student_id
+    student=Students.objects.get(admin=student_id)
+    form=EditStudentForm()
+    form.fields['email'].initial=student.admin.email
+    form.fields['first_name'].initial=student.admin.first_name
+    form.fields['last_name'].initial=student.admin.last_name
+    form.fields['username'].initial=student.admin.username
+    form.fields['address'].initial=student.address
+    form.fields['course'].initial=student.course_id.id
+    form.fields['sex'].initial=student.gender
+    form.fields['session_year_id'].initial=student.session_year_id.id
+    return render(request,"admin/hod_template/student/edit_student_template.html",{"form":form,"id":student_id,"username":student.admin.username})
+
+def edit_student_save(request):
+    if request.method!="POST":
+        return HttpResponse("<h2>Method Not Allowed</h2>")
+    else:
+        student_id=request.session.get("student_id")
+        if student_id==None:
+            return HttpResponseRedirect(reverse("myapp_url:manage_student"))
+
+        form=EditStudentForm(request.POST,request.FILES)
+        if form.is_valid():
+            first_name = form.cleaned_data["first_name"]
+            last_name = form.cleaned_data["last_name"]
+            username = form.cleaned_data["username"]
+            email = form.cleaned_data["email"]
+            address = form.cleaned_data["address"]
+            session_year_id=form.cleaned_data["session_year_id"]
+            course_id = form.cleaned_data["course"]
+            sex = form.cleaned_data["sex"]
+
+            if request.FILES.get('profile_pic',False):
+                profile_pic=request.FILES['profile_pic']
+                fs=FileSystemStorage()
+                filename=fs.save(profile_pic.name,profile_pic)
+                profile_pic_url=fs.url(filename)
+            else:
+                profile_pic_url=None
+
+
+            try:
+                user=CustomUser.objects.get(id=student_id)
+                user.first_name=first_name
+                user.last_name=last_name
+                user.username=username
+                user.email=email
+                user.save()
+
+                student=Students.objects.get(admin=student_id)
+                student.address=address
+                session_year = SessionYearModel.object.get(id=session_year_id)
+                student.session_year_id = session_year
+                student.gender=sex
+                course=Courses.objects.get(id=course_id)
+                student.course_id=course
+                if profile_pic_url!=None:
+                    student.profile_pic=profile_pic_url
+                student.save()
+                del request.session['student_id']
+                messages.success(request,"Successfully Edited Student")
+                return HttpResponseRedirect(reverse("myapp_url:edit_student",kwargs={"student_id":student_id}))
+            except:
+                messages.error(request,"Failed to Edit Student")
+                return HttpResponseRedirect(reverse("myapp_url:edit_student",kwargs={"student_id":student_id}))
+        else:
+            form=EditStudentForm(request.POST)
+            student=Students.objects.get(admin=student_id)
+            return render(request,"admin/hod_template/student/edit_student_template.html",{"form":form,"id":student_id,"username":student.admin.username})
