@@ -43,4 +43,14 @@ urlpatterns = [
     path('edit_course/<str:course_id>', HodViews.edit_course,name="edit_course"),
     path('edit_course_save', HodViews.edit_course_save,name="edit_course_save"),
 
+    path('add_session', HodViews.add_session,name="add_session"),
+    path('add_session_save', HodViews.add_session_save,name="add_session_save"),
+    path('manage_session', HodViews.manage_session, name="manage_session"),
+
+    path('add_student', HodViews.add_student,name="add_student"),
+    path('add_student_save', HodViews.add_student_save,name="add_student_save"),
+
+
+
+
 ]
