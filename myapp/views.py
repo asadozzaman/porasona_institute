@@ -32,14 +32,15 @@ def doLogin(request):
         return HttpResponse("<h2>Method Not Allowed</h2>")
     else:
         user=EmailBackEnd.authenticate(request,username=request.POST.get("email"),password=request.POST.get("password"))
+        print(user)
         if user!=None:
             login(request,user)
             if user.user_type=="1":
-                return HttpResponseRedirect(reverse("myapp_url:admin_home"))
+                return HttpResponseRedirect(reverse('myapp_url:admin_home'))
             elif user.user_type=="2":
-                return HttpResponse("staff login"+str(user.user_type))
+                return HttpResponseRedirect(reverse("myapp_url:staff_home"))
             else:
-                return HttpResponse("student_home login"+str(user.user_type))
+                return HttpResponseRedirect(reverse("myapp_url:student_home"))
         else:
             messages.error(request,"Invalid Login Details")
             return HttpResponseRedirect("/")

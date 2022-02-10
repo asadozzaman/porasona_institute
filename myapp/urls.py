@@ -17,7 +17,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 
-from myapp import views,HodViews
+from myapp import views,HodViews,StaffViews,StudentViews
 
 
 app_name = 'myapp_url'
@@ -26,8 +26,7 @@ urlpatterns = [
     path('',views.ShowLoginPage,name="show_login"),
     path('doLogin', views.doLogin, name="do_login"),
     path('get_user_details', views.GetUserDetails, name="get_user_details"),
-    path('logout_user', views.logout_user),
-
+    path('logout_user', views.logout_user, name="logout"),
     # hod views
     path('admin_home',HodViews.admin_home,name="admin_home"),
 
@@ -59,7 +58,10 @@ urlpatterns = [
     path('edit_subject/<str:subject_id>', HodViews.edit_subject,name="edit_subject"),
     path('edit_subject_save', HodViews.edit_subject_save,name="edit_subject_save"),
 
+    #     Staff URL Path
+    path('staff_home', StaffViews.staff_home, name="staff_home"),
 
-
+    #     Student URL Path
+    path('student_home', StudentViews.student_home, name="student_home"),
 
 ]
